@@ -1,71 +1,63 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import Button from './Button/Button';
 import { fetchPhotos } from 'service/search-api';
 
-class App extends Component {
-  state = {
-    photos: [],
-    query: '',
-    page: 1,
-    isLoading: false,
-    isButton: false,
-  };
+import React from 'react';
 
-  fetchPhotosFromApi = async (newQuery, currentPage) => {
-    this.setState({ isLoading: true });
+const App = () => {
+  const [photos, setPhotos] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isButton, setIsButton] = useState(false);
+
+  const fetchPhotosFromApi = async (newQuery, currentPage) => {
+    setIsLoading(true);
     try {
       const response = await fetchPhotos(newQuery, currentPage);
       if (response.total === 0) {
-        this.setState({
-          photos: [],
-          isButton: false,
-        });
+        setPhotos([]);
+        setIsButton(false);
         return;
       }
 
-      this.setState(prevState => ({
-        photos: [...prevState.photos, ...response.hits],
-        query: newQuery,
-        isButton: true,
-      }));
+      setPhotos(prevPhotos => [...prevPhotos, ...response.hits]);
+      setQuery(newQuery);
+      setIsButton(true);
     } catch (error) {
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
   };
 
-  updateQuery = query => {
-    this.setState({ page: 1, photos: [], query });
+  const updateQuery = query => {
+    setPage(1);
+    setPhotos([]);
+    setQuery(query);
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  componentDidUpdate(_, prevState) {
-    if (
-      (this.state.query !== prevState.query || this.state.page) !==
-      prevState.page
-    ) {
-      this.fetchPhotosFromApi(this.state.query, this.state.page);
+  useEffect(() => {
+    if (!query) {
+      return;
     }
-  }
+    fetchPhotosFromApi(query, page);
+  }, [query, page]);
 
-  render() {
-    return (
-      <>
-        <Searchbar onQueryChange={this.updateQuery} />
-        <ImageGallery photos={this.state.photos} />
-        <Loader isLoading={this.state.isLoading} />
-        <Button isButton={this.state.isButton} loadMore={this.loadMore} />
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <Searchbar onQueryChange={updateQuery} />
+      <ImageGallery photos={photos} />
+      <Loader isLoading={isLoading} />
+      <Button isButton={isButton} loadMore={loadMore} />
+    </>
+  );
+};
 
 export default App;
