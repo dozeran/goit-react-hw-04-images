@@ -5,8 +5,6 @@ import Loader from './Loader/Loader';
 import Button from './Button/Button';
 import { fetchPhotos } from 'service/search-api';
 
-import React from 'react';
-
 const App = () => {
   const [photos, setPhotos] = useState([]);
   const [query, setQuery] = useState('');
@@ -24,7 +22,7 @@ const App = () => {
         return;
       }
 
-      setPhotos(prevPhotos => [...prevPhotos, ...response.hits]);
+      setPhotos(photos => [...photos, ...response.hits]);
       setQuery(newQuery);
       setIsButton(true);
     } catch (error) {
@@ -40,7 +38,7 @@ const App = () => {
   };
 
   const loadMore = () => {
-    setPage(prevPage => prevPage + 1);
+    setPage(page => page + 1);
   };
 
   useEffect(() => {

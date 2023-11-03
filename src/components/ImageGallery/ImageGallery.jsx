@@ -3,8 +3,6 @@ import css from './ImageGallery.module.css';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import Modal from 'components/Modal/Modal';
 
-import React from 'react';
-
 const ImageGallery = ({ photos }) => {
   const [isModal, setIsModal] = useState(false);
   const [fullImage, setFullImage] = useState('');
